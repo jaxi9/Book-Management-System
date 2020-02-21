@@ -6,7 +6,7 @@ from forms import Login, SearchBookForm, ChangePasswordForm, EditInfoForm, Searc
 from flask_login import UserMixin, LoginManager, login_required, login_user, logout_user, current_user
 import time, datetime
 
-
+#系统应用的配置以及相关的实例化
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
@@ -30,7 +30,7 @@ login_manager.session_protection = 'basic'
 login_manager.login_view = 'login'
 login_manager.login_message = u"请先登录。"
 
-
+#定议管理员类 及对应表名称以及表字段
 class Admin(UserMixin, db.Model):
     __tablename__ = 'admin'
     admin_id = db.Column(db.String(6), primary_key=True)
@@ -56,7 +56,7 @@ class Admin(UserMixin, db.Model):
     def __repr__(self):
         return '<Admin %r>' % self.admin_name
 
-
+#定 图书类 以及对就表名为 (book) 表字段 
 class Book(db.Model):
     __tablename__ = 'book'
     isbn = db.Column(db.String(13), primary_key=True)
@@ -68,7 +68,7 @@ class Book(db.Model):
     def __repr__(self):
         return '<Book %r>' % self.book_name
 
-
+#定议学生类        表名及字段
 class Student(db.Model):
     __tablename__ = 'student'
     card_id = db.Column(db.String(8), primary_key=True)
@@ -83,7 +83,7 @@ class Student(db.Model):
 
     def __repr__(self):
         return '<Student %r>' % self.student_name
-
+#定议 库存类    表名及字段
 
 class Inventory(db.Model):
     __tablename__ = 'inventory'
@@ -98,7 +98,7 @@ class Inventory(db.Model):
     def __repr__(self):
         return '<Inventory %r>' % self.barcode
 
-
+#定义 读书类 表名及字段
 class ReadBook(db.Model):
     __tablename__ = 'readbook'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -112,13 +112,13 @@ class ReadBook(db.Model):
 
     def __repr__(self):
         return '<ReadBook %r>' % self.id
-
+#以下是路由开始定义
 
 @login_manager.user_loader
 def load_user(admin_id):
     return Admin.query.get(int(admin_id))
 
-
+#根下管理员登录
 @app.route('/', methods=['GET', 'POST'])
 def login():
     form = Login()
@@ -134,7 +134,7 @@ def login():
             return redirect(url_for('index'))
     return render_template('login.html', form=form)
 
-
+#登出路由
 @app.route('/logout')
 @login_required
 def logout():
@@ -169,14 +169,14 @@ def echarts():
         data.append(item)
     return jsonify(data)
 
-
+# 两个路由对应同一个函数
 @app.route('/user/<id>')
 @login_required
 def user_info(id):
     user = Admin.query.filter_by(admin_id=id).first()
     return render_template('user-info.html', user=user, name=session.get('name'))
 
-
+# 两个路由对应同一个函数
 @app.route('/change_password', methods=['GET', 'POST'])
 @login_required
 def change_password():
